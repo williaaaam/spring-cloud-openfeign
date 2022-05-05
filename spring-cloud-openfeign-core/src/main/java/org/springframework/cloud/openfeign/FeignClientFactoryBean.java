@@ -312,6 +312,7 @@ public class FeignClientFactoryBean implements FactoryBean<Object>, Initializing
 	}
 
 	protected <T> T get(FeignContext context, Class<T> type) {
+		// 获取contextId 对应的ApplicationContext下的 type对应的Bean
 		T instance = context.getInstance(contextId, type);
 		if (instance == null) {
 			throw new IllegalStateException(
@@ -348,10 +349,11 @@ public class FeignClientFactoryBean implements FactoryBean<Object>, Initializing
 		Client client = getOptional(context, Client.class);
 		if (client != null) {
 			builder.client(client);
+			//
 			Targeter targeter = get(context, Targeter.class);
 			return targeter.target(this, builder, context, target);
 		}
-
+		// 从这里可以看出OpenFeign 需要做负载均衡
 		throw new IllegalStateException(
 				"No Feign Client for loadBalancing defined. Did you forget to include spring-cloud-starter-netflix-ribbon or spring-cloud-starter-loadbalancer?");
 	}
@@ -362,6 +364,7 @@ public class FeignClientFactoryBean implements FactoryBean<Object>, Initializing
 	}
 
 	/**
+	 *
 	 * @param <T> the target type of the Feign client
 	 * @return a {@link Feign} client created with the specified data and the context
 	 * information

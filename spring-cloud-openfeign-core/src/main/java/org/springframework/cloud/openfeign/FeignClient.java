@@ -26,6 +26,8 @@ import java.lang.annotation.Target;
 import org.springframework.core.annotation.AliasFor;
 
 /**
+ * @FeignClient(value = "${svr-name}", contextId = "productCoupon", path = "/api/prod/coupon")
+ *
  * Annotation for interfaces declaring that a REST client with that interface should be
  * created (e.g. for autowiring into another component). If ribbon is available it will be
  * used to load balance the backend requests, and the load balancer can be configured
@@ -66,6 +68,7 @@ public @interface FeignClient {
 	String contextId() default "";
 
 	/**
+	 * REST接口对应的服务名,如果使用了Ribbon,name属性会作为微服务的名称
 	 * @return The service id with optional protocol prefix. Synonym for {@link #value()
 	 * value}.
 	 */
@@ -97,16 +100,19 @@ public @interface FeignClient {
 	String[] qualifiers() default {};
 
 	/**
+	 * 绝对的URL地址，一般用于调试
 	 * @return an absolute URL or resolvable hostname (the protocol is optional).
 	 */
 	String url() default "";
 
 	/**
+	 * 当发生http 404错误时，如果该字段位true，会调用decoder进行解码，否则抛出FeignException
 	 * @return whether 404s should be decoded instead of throwing FeignExceptions
 	 */
 	boolean decode404() default false;
 
 	/**
+	 * Feign配置类，可以自定义Feign的Encoder、Decoder、LogLevel、Contract
 	 * A custom configuration class for the feign client. Can contain override
 	 * <code>@Bean</code> definition for the pieces that make up the client, for instance
 	 * {@link feign.codec.Decoder}, {@link feign.codec.Encoder}, {@link feign.Contract}.
@@ -117,6 +123,8 @@ public @interface FeignClient {
 	Class<?>[] configuration() default {};
 
 	/**
+	 * 定义容错的处理类，当调用远程接口失败或超时时，会调用对应接口的容错逻辑，fallback指定的类必须实现@FeignClient标记的接口 并且被Spring容器管理
+	 *
 	 * Fallback class for the specified Feign client interface. The fallback class must
 	 * implement the interface annotated by this annotation and be a valid spring bean.
 	 * @return fallback class for the specified Feign client interface
@@ -124,6 +132,8 @@ public @interface FeignClient {
 	Class<?> fallback() default void.class;
 
 	/**
+	 * 工厂类，用于生成fallback类示例，通过这个属性我们可以实现每个接口通用的容错逻辑，减少重复的代码
+	 *
 	 * Define a fallback factory for the specified Feign client interface. The fallback
 	 * factory must produce instances of fallback classes that implement the interface
 	 * annotated by {@link FeignClient}. The fallback factory must be a valid spring bean.
@@ -135,6 +145,7 @@ public @interface FeignClient {
 	Class<?> fallbackFactory() default void.class;
 
 	/**
+	 * 定义当前FeignClient的统一前缀
 	 * @return path prefix to be used by all method-level mappings. Can be used with or
 	 * without <code>@RibbonClient</code>.
 	 */

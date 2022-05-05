@@ -200,6 +200,13 @@ public class SpringMvcContract extends Contract.BaseContract
 		return super.parseAndValidateMetadata(targetType, method);
 	}
 
+	/**
+	 * 解析FeignClient接口方法级别上的RequestMapping注解
+	 * 将注解解析为方法元数据，OpenFeign利用MethodMetadata将方法调用"翻译成"远程调用用的Request对象
+	 * @param data 方法元数据
+	 * @param methodAnnotation
+	 * @param method
+	 */
 	@Override
 	protected void processAnnotationOnMethod(MethodMetadata data,
 			Annotation methodAnnotation, Method method) {
@@ -209,14 +216,19 @@ public class SpringMvcContract extends Contract.BaseContract
 			data.template().collectionFormat(collectionFormat.value());
 		}
 
+		// 如果方法上没有使用RequestMapping注解，则不进行解析
+		// 其实GetMapping、PostMapping等注解都属于RequestMapping注解
 		if (!RequestMapping.class.isInstance(methodAnnotation) && !methodAnnotation
 				.annotationType().isAnnotationPresent(RequestMapping.class)) {
 			return;
 		}
 
+		// 获取方法上的注解
 		RequestMapping methodMapping = findMergedAnnotation(method, RequestMapping.class);
 		// HTTP Method
+		// 解析Http Method定义，即注解中的GET、POST、PUT、DELETE方法类型
 		RequestMethod[] methods = methodMapping.method();
+		// 如果没有定义methods属性则默认当前方法是个GET方法
 		if (methods.length == 0) {
 			methods = new RequestMethod[] { RequestMethod.GET };
 		}
@@ -224,12 +236,14 @@ public class SpringMvcContract extends Contract.BaseContract
 		data.template().method(Request.HttpMethod.valueOf(methods[0].name()));
 
 		// path
+		// 解析path, 即方法上写明的请求路径
 		checkAtMostOne(method, methodMapping.value(), "value");
 		if (methodMapping.value().length > 0) {
 			String pathValue = emptyToNull(methodMapping.value()[0]);
 			if (pathValue != null) {
 				pathValue = resolve(pathValue);
 				// Append path from @RequestMapping if value is present on method
+				// 如果path没有以"/"开头，则补上"/"
 				if (!pathValue.startsWith("/") && !data.template().path().endsWith("/")) {
 					pathValue = "/" + pathValue;
 				}
@@ -241,12 +255,15 @@ public class SpringMvcContract extends Contract.BaseContract
 		}
 
 		// produces
+		// 解析produces属性，指定返回值类型
 		parseProduces(data, method, methodMapping);
 
-		// consumes
+		// consumes，
+		// 处理RequestMapping 注解的指定处理请求的提交内容类型
 		parseConsumes(data, method, methodMapping);
 
 		// headers
+		// 解析header属性
 		parseHeaders(data, method, methodMapping);
 
 		data.indexToExpander(new LinkedHashMap<>());

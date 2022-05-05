@@ -44,10 +44,13 @@
 			<groupId>io.github.openfeign</groupId>
 			<artifactId>feign-slf4j</artifactId>
 		</dependency>
+
+		<!--OpenFeign 对服务降级的支持是借助 Hystrix 组件实现的-->
 		<dependency>
 			<groupId>io.github.openfeign</groupId>
 			<artifactId>feign-hystrix</artifactId>
 		</dependency>
+
 		<dependency>
 			<groupId>org.springframework.cloud</groupId>
 			<artifactId>spring-cloud-starter-netflix-ribbon</artifactId>
@@ -63,5 +66,6 @@
 			<artifactId>spring-cloud-starter-loadbalancer</artifactId>
 			<optional>true</optional>
 		</dependency>
+
 	</dependencies>
 </project>

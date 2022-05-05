@@ -83,9 +83,11 @@ public class FeignClientsRegistrarTests {
 		return registrar.getName(Collections.singletonMap("name", name));
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test(expected = IllegalStateException.class)
 	public void testFallback() {
-		new AnnotationConfigApplicationContext(FallbackTestConfig.class);
+		AnnotationConfigApplicationContext annotationConfigApplicationContext = new AnnotationConfigApplicationContext(FallbackTestConfig.class);
+		FallbackClient fallbackClient = annotationConfigApplicationContext.getBean(FallbackClient.class);
+		System.out.println(fallbackClient);
 	}
 
 	@Test(expected = IllegalArgumentException.class)

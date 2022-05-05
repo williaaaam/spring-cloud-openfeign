@@ -33,9 +33,9 @@ import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 /**
  * @author Spencer Gibb
  */
-@Configuration(proxyBeanMethods = false)
-@Import({ NoopDiscoveryClientAutoConfiguration.class })
-@AutoConfigureBefore(SecurityAutoConfiguration.class)
+//@Configuration(proxyBeanMethods = false)
+//@Import({ NoopDiscoveryClientAutoConfiguration.class })
+//@AutoConfigureBefore(SecurityAutoConfiguration.class)
 public class TestAutoConfiguration {
 
 	public static final String USER = "user";
